@@ -1,0 +1,1 @@
+export const AI_PROMPT= "give  only answer of the question  {question}  no explaination"

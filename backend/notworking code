@@ -1,0 +1,635 @@
+
+
+// const express = require('express');
+// const multer = require('multer');
+// const cors = require('cors');
+// const path = require('path');
+// const fs = require('fs');
+// const mongoose = require('mongoose');
+// const { v4: uuidv4 } = require('uuid');
+
+// const app = express();
+// const PORT = 5000;
+
+// app.use(cors());
+
+// mongoose.connect('mongodb://127.0.0.1:27017/imageDb', {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// });
+
+
+// const fileSchema = new mongoose.Schema({
+//   batchId: String,
+//   originalName: String,
+//   filePath: String,
+//   size: Number,
+//   uploadedAt: { type: Date, default: Date.now },
+// });
+
+// const File = mongoose.model('File', fileSchema);
+
+// const uploadsDir = path.join(__dirname, 'uploads');
+// if (!fs.existsSync(uploadsDir)) {
+//   fs.mkdirSync(uploadsDir);
+// }
+
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, uploadsDir);
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + '-' + file.originalname);
+//   },
+// });
+
+// const upload = multer({ storage });
+
+// app.post('/upload', upload.array('files'), async (req, res) => {
+//   try {
+//     const files = req.files;
+
+//     if (!files || files.length === 0) {
+//       return res.status(400).json({ message: 'No files uploaded' });
+//     }
+//     const batchId = uuidv4();
+//     const savedFiles = await File.insertMany(
+//       files.map((file) => ({
+//         batchId,
+//         originalName: file.originalname,
+//         filePath: file.path,
+//         size: file.size,
+//       }))
+//     );
+
+//     res.status(200).json({ message: 'Files uploaded successfully', batchId, savedFiles });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
+// app.use('/uploads', express.static(uploadsDir));
+
+// app.listen(PORT, () => {
+//   console.log(`Server running on http://localhost:${PORT}`);
+// });
+
+// import express from 'express';
+// import multer from 'multer';
+// import { ImageAnnotatorClient } from '@google-cloud/vision';
+// import mongoose from 'mongoose';
+// import cors from 'cors';
+// import path from 'path';
+// import { fileURLToPath } from 'url';
+// import fs from 'fs';
+
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+
+// const app = express();
+// const upload = multer({ dest: 'uploads/' });
+// app.use(cors());
+// app.use(express.json());
+
+// mongoose.connect('mongodb://127.0.0.1:27017/image-text-extractor', {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// });
+
+// const imageSchema = new mongoose.Schema({
+//   filename: String,
+//   filepath: String,
+//   extractedText: String,
+// });
+
+// const ImageModel = mongoose.model('Image', imageSchema);
+
+// const visionClient = new ImageAnnotatorClient({
+//   keyFilename: path.join(__dirname, 'google_vision_Api.json'), 
+// });
+
+// app.post('/upload', upload.single('file'), async (req, res) => {
+//   try {
+//     if (!req.file) {
+//       return res.status(400).json({ error: 'No file uploaded' });
+//     }
+
+//     const [result] = await visionClient.textDetection(req.file.path);
+//     const textAnnotations = result.textAnnotations;
+
+//     const extractedText = textAnnotations ? textAnnotations[0].description : 'No text found';
+
+//     const newImage = new ImageModel({
+//       filename: req.file.originalname,
+//       filepath: req.file.path,
+//       extractedText: extractedText,
+//     });
+//     await newImage.save();
+//     res.status(200).json({
+//       filename: req.file.originalname,
+//       filepath: req.file.path,
+//       extractedText: extractedText,
+//     });
+//   } catch (error) {
+//     console.error('Error processing image:', error);
+//     res.status(500).json({ error: 'Failed to process image' });
+//   }
+// });
+// app.get('/images', async (req, res) => {
+//   try {
+//     const images = await ImageModel.find();
+//     res.status(200).json(images);
+//   } catch (error) {
+//     console.error('Error fetching images:', error);
+//     res.status(500).json({ error: 'Failed to fetch images' });
+//   }
+// });
+
+// app.delete('/images/:filename', async (req, res) => {
+//   try {
+//     const { filename } = req.params;
+//     const deletedImage = await ImageModel.findOneAndDelete({ filename });
+
+//     if (!deletedImage) {
+//       return res.status(404).json({ error: 'File not found' });
+//     }
+//     fs.unlinkSync(deletedImage.filepath);
+
+//     res.status(200).json({ message: 'File deleted successfully' });
+//   } catch (error) {
+//     console.error('Error deleting file:', error);
+//     res.status(500).json({ error: 'Failed to delete file' });
+//   }
+// });
+
+// const PORT = 5000;
+// app.listen(PORT, () => {
+//   console.log(`Server running on http://localhost:${PORT}`);
+// });
+
+
+
+// const express = require('express');
+// const multer = require('multer');
+// const cors = require('cors');
+// const path = require('path');
+// const fs = require('fs');
+// const mongoose = require('mongoose');
+// const { v4: uuidv4 } = require('uuid');
+// const { ImageAnnotatorClient } = require('@google-cloud/vision');
+
+// const app = express();
+// const PORT = 5000;
+
+// app.use(cors());
+// mongoose.connect('mongodb://127.0.0.1:27017/imageDb', {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// });
+
+// const fileSchema = new mongoose.Schema({
+//   batchId: String,
+//   originalName: String,
+//   filePath: String,
+//   size: Number,
+//   uploadedAt: { type: Date, default: Date.now },
+//   extractedText: String,
+// });
+// const File = mongoose.model('File', fileSchema);
+// const uploadsDir = path.join(__dirname, 'uploads');
+// if (!fs.existsSync(uploadsDir)) {
+//   fs.mkdirSync(uploadsDir);
+// }
+
+// const visionClient = new ImageAnnotatorClient({
+//   keyFilename: path.join(__dirname, 'google_vision_Api.json'), 
+// });
+
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, uploadsDir); 
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + '-' + file.originalname); 
+//   },
+// });
+
+// const upload = multer({ storage });
+
+// async function extractTextFromImage(filePath) {
+//   const [result] = await visionClient.textDetection(filePath);
+//   const detections = result.textAnnotations;
+//   return detections ? detections[0].description : '';
+// }
+// app.post('/upload', upload.array('files'), async (req, res) => {
+//   try {
+//     const files = req.files;
+
+//     if (!files || files.length === 0) {
+//       return res.status(400).json({ message: 'No files uploaded' });
+//     }
+//     const batchId = uuidv4();
+
+//     const savedFiles = await Promise.all(files.map(async (file) => {
+//       const extractedText = await extractTextFromImage(file.path);
+//       const savedFile = await File.create({
+//         batchId,
+//         originalName: file.originalname,
+//         filePath: file.path,
+//         size: file.size,
+//         extractedText, 
+//       });
+//       return savedFile;
+//     }));
+
+//     res.status(200).json({ message: 'Files uploaded successfully', batchId, savedFiles });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
+// app.use('/uploads', express.static(uploadsDir));
+// app.listen(PORT, () => {
+//   console.log(`Server running on http://localhost:${PORT}`);
+// });
+
+// const express = require('express');
+// const multer = require('multer');
+// const cors = require('cors');
+// const path = require('path');
+// const fs = require('fs');
+// const mongoose = require('mongoose');
+// const { v4: uuidv4 } = require('uuid');
+// const { ImageAnnotatorClient } = require('@google-cloud/vision');
+
+// const app = express();
+// const PORT = 5000;
+
+// app.use(cors());
+// mongoose.connect('mongodb://127.0.0.1:27017/image-text-extractor', {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// });
+
+// const fileSchema = new mongoose.Schema({
+//   batchId: String,
+//   originalName: String,
+//   filePath: String,
+//   size: Number,
+//   uploadedAt: { type: Date, default: Date.now },
+//   extractedText: String,
+// });
+
+// const File = mongoose.model('File', fileSchema);
+
+// const uploadsDir = path.join(__dirname, 'uploads');
+// if (!fs.existsSync(uploadsDir)) {
+//   fs.mkdirSync(uploadsDir);
+// }
+
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, uploadsDir);
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + '-' + file.originalname);
+//   },
+// });
+
+// const upload = multer({ storage });
+
+// const visionClient = new ImageAnnotatorClient({
+//   keyFilename: path.join(__dirname, 'google_vision_Api.json'),
+// });
+
+// async function extractTextFromImage(filePath) {
+//   const [result] = await visionClient.textDetection(filePath);
+//   const textAnnotations = result.textAnnotations;
+//   return textAnnotations ? textAnnotations[0].description : 'No text found';
+// }
+
+// app.post('/upload', upload.array('files'), async (req, res) => {
+//   try {
+//     const files = req.files;
+
+//     if (!files || files.length === 0) {
+//       return res.status(400).json({ message: 'No files uploaded' });
+//     }
+
+//     const batchId = uuidv4();
+
+//     const savedFiles = await Promise.all(
+//       files.map(async (file) => {
+//         try {
+//           const extractedText = await extractTextFromImage(file.path);
+//           const savedFile = await File.create({
+//             batchId,
+//             originalName: file.originalname,
+//             filePath: file.path,
+//             size: file.size,
+//             extractedText,
+//           });
+//           return savedFile;
+//         } catch (error) {
+//           console.error('Error processing file:', file.originalname, error);
+//           throw error;
+//         }
+//       })
+//     );
+
+//     res.status(200).json({ message: 'Files uploaded successfully', batchId, savedFiles });
+//   } catch (error) {
+//     console.error('Error in /upload endpoint:', error);
+//     res.status(500).json({ message: 'Server error', error: error.message });
+//   }
+// });
+
+// app.use('/uploads', express.static(uploadsDir));
+
+// app.listen(PORT, () => {
+//   console.log(`Server running on http://localhost:${PORT}`);
+// });
+
+// const express = require('express');
+// const multer = require('multer');
+// const cors = require('cors');
+// const path = require('path');
+// const fs = require('fs');
+// const mongoose = require('mongoose');
+// const { v4: uuidv4 } = require('uuid');
+// const Tesseract = require('tesseract.js'); 
+// require('dotenv').config(); 
+
+// const app = express();
+// const PORT = 5000;
+
+// app.use(cors());
+
+// mongoose.connect('mongodb://127.0.0.1:27017/image-text-extractor');
+
+// const fileSchema = new mongoose.Schema({
+//   batchId: String,
+//   originalName: String,
+//   filePath: String,
+//   size: Number,
+//   uploadedAt: { type: Date, default: Date.now },
+//   extractedText: String,
+// });
+
+// const File = mongoose.model('File', fileSchema);
+
+// const uploadsDir = path.join(__dirname, 'uploads');
+// if (!fs.existsSync(uploadsDir)) {
+//   fs.mkdirSync(uploadsDir);
+// }
+
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, uploadsDir);
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + '-' + file.originalname);
+//   },
+// });
+
+// const upload = multer({ storage });
+
+// // Function to extract text using Tesseract.js
+// async function extractTextFromImage(filePath) {
+//   try {
+//     const { data: { text } } = await Tesseract.recognize(filePath, 'eng');
+//     return text || 'No text found';
+//   } catch (error) {
+//     console.error('Tesseract.js Error:', error);
+//     throw new Error('Failed to extract text from image');
+//   }
+// }
+
+// const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+// app.use(express.json());
+
+// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// // API to handle questions and generate answers
+// app.post('/api/ask', async (req, res) => {
+//   console.log('Request Body:', req.body);
+
+//   const { text, question, purpose, answerType, projectDetails } = req.body;
+
+//   if (!text || !question) {
+//     return res.status(400).json({ error: 'Text and question are required' });
+//   }
+
+//   try {
+//     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+//     let prompt = `Purpose: ${purpose}\n\n`;
+//     if (purpose === 'education') {
+//       prompt += `Answer Type: ${answerType}\n\n`;
+//       if (answerType === 'project') {
+//         prompt += `Project Details: ${projectDetails.paragraphs} paragraphs, ${projectDetails.words} words\n\n`;
+//       } else if (answerType === 'long') {
+//         prompt += `Provide a detailed answer in 3-5 paragraphs with 100-150 words.\n\n`;
+//       } else if (answerType === 'short') {
+//         prompt += `Provide a concise answer in 2-3 paragraphs with 50-80 words.\n\n`;
+//       } else if (answerType === 'one-word') {
+//         prompt += `Provide a one-word answer or a brief response in 1-2 lines (10 words or less).\n\n`;
+//       }
+//     }
+//     prompt += `Given the following text: ${text}\n\nAnswer the following question: ${question}`;
+
+//     const result = await model.generateContent(prompt);
+//     const response = await result.response;
+//     const answer = response.text();
+
+//     res.status(200).json({ answer });
+//   } catch (error) {
+//     console.error('Error asking question:', error);
+//     res.status(500).json({ error: 'Failed to get answer from Gemini AI' });
+//   }
+// });
+// app.post('/upload', upload.array('files'), async (req, res) => {
+//   try {
+//     const files = req.files;
+
+//     if (!files || files.length === 0) {
+//       return res.status(400).json({ message: 'No files uploaded' });
+//     }
+
+//     const batchId = uuidv4();
+
+//     const savedFiles = await Promise.all(
+//       files.map(async (file) => {
+//         try {
+//           const extractedText = await extractTextFromImage(file.path);
+//           const savedFile = await File.create({
+//             batchId,
+//             originalName: file.originalname,
+//             filePath: file.path,
+//             size: file.size,
+//             extractedText,
+//           });
+//           return savedFile;
+//         } catch (error) {
+//           console.error('Error processing file:', file.originalname, error);
+//           throw error;
+//         }
+//       })
+//     );
+
+//     res.status(200).json({ message: 'Files uploaded successfully', batchId, savedFiles });
+//   } catch (error) {
+//     console.error('Error in /upload endpoint:', error);
+//     res.status(500).json({ message: 'Server error', error: error.message });
+//   }
+// });
+
+// app.use('/uploads', express.static(uploadsDir));
+
+// app.listen(PORT, () => {
+//   console.log(`Server running on http://localhost:${PORT}`);
+// });
+
+
+
+
+
+// const express = require('express');
+// const multer = require('multer');
+// const cors = require('cors');
+// const path = require('path');
+// const fs = require('fs');
+// const mongoose = require('mongoose');
+// const { v4: uuidv4 } = require('uuid');
+// const Tesseract = require('tesseract.js');
+// require('dotenv').config();
+
+// const app = express();
+// const PORT = 5000;
+
+// app.use(cors());
+// app.use(express.json());
+
+
+// mongoose.connect('mongodb://127.0.0.1:27017/image-text-extractor', {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// });
+
+// const fileSchema = new mongoose.Schema({
+//   batchId: String,
+//   originalName: String,
+//   filePath: String,
+//   size: Number,
+//   uploadedAt: { type: Date, default: Date.now },
+//   extractedText: String,
+// });
+
+// const File = mongoose.model('File', fileSchema);
+
+// const uploadsDir = path.join(__dirname, 'uploads');
+// if (!fs.existsSync(uploadsDir)) {
+//   fs.mkdirSync(uploadsDir);
+// }
+
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, uploadsDir);
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + '-' + file.originalname);
+//   },
+// });
+
+// const upload = multer({ storage });
+
+// async function extractTextFromImage(filePath) {
+//   try {
+//     const { data: { text } } = await Tesseract.recognize(filePath, 'eng');
+//     return text || 'No text found';
+//   } catch (error) {
+//     console.error('Tesseract.js Error:', error);
+//     throw new Error('Failed to extract text from image');
+//   }
+// }
+
+// const { GoogleGenerativeAI } = require('@google/generative-ai');
+// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+
+// app.post('/api/ask', async (req, res) => {
+//   console.log('Request Body:', req.body);
+
+//   const { text, question, purpose, answerType, projectDetails } = req.body;
+
+//   if (!text || !question) {
+//     return res.status(400).json({ error: 'Text and question are required' });
+//   }
+
+//   try {
+//     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+//     let prompt = `Purpose: ${purpose}\n\n`;
+//     if (purpose === 'education') {
+//       prompt += `Answer Type: ${answerType}\n\n`;
+//       if (answerType === 'project') {
+//         prompt += `Project Details: ${projectDetails.paragraphs} paragraphs, ${projectDetails.words} words\n\n`;
+//       } else if (answerType === 'long') {
+//         prompt += `Provide a detailed answer in 3-5 paragraphs with 100-150 words.\n\n`;
+//       } else if (answerType === 'short') {
+//         prompt += `Provide a concise answer in 2-3 paragraphs with 50-80 words.\n\n`;
+//       } else if (answerType === 'one-word') {
+//         prompt += `Provide a one-word answer or a brief response in 1-2 lines (10 words or less).\n\n`;
+//       }
+//     }
+//     prompt += `Given the following text: ${text}\n\nAnswer the following question: ${question}`;
+
+//     const result = await model.generateContent(prompt);
+//     const response = await result.response;
+//     const answer = response.text();
+
+//     res.status(200).json({ answer });
+//   } catch (error) {
+//     console.error('Error asking question:', error);
+//     res.status(500).json({ error: 'Failed to get answer from Gemini AI' });
+//   }
+// });
+// app.post('/upload', upload.array('files'), async (req, res) => {
+//   try {
+//     const files = req.files;
+
+//     if (!files || files.length === 0) {
+//       return res.status(400).json({ message: 'No files uploaded' });
+//     }
+
+//     const batchId = uuidv4();
+
+//     const savedFiles = await Promise.all(
+//       files.map(async (file) => {
+//         try {
+//           const extractedText = await extractTextFromImage(file.path);
+//           const savedFile = await File.create({
+//             batchId,
+//             originalName: file.originalname,
+//             filePath: file.path,
+//             size: file.size,
+//             extractedText,
+//           });
+//           return savedFile;
+//         } catch (error) {
+//           console.error('Error processing file:', file.originalname, error);
+//           throw error;
+//         }
+//       })
+//     );
+
+//     res.status(200).json({ message: 'Files uploaded successfully', batchId, savedFiles });
+//   } catch (error) {
+//     console.error('Error in /upload endpoint:', error);
+//     res.status(500).json({ message: 'Server error', error: error.message });
+//   }
+// });
+// app.use('/uploads', express.static(uploadsDir));
+// app.listen(PORT, () => {
+//   console.log(`Server running on http://localhost:${PORT}`);
+// });

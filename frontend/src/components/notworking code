@@ -1,0 +1,1725 @@
+
+// import React, { useState } from 'react';
+// import axios from 'axios';
+// import { AiOutlineLoading3Quarters, AiOutlineDelete } from "react-icons/ai";
+// import { v4 as uuidv4 } from 'uuid';
+
+// const Home = () => {
+//   const [previewFiles, setPreviewFiles] = useState([]);
+//   const [uploadStatus, setUploadStatus] = useState('');
+//   const [loading, setLoading] = useState(false);
+//   const [uploadUUID, setUploadUUID] = useState('');
+
+//   const handleFileChange = (event) => {
+//     const files = event.target.files;
+//     if (files && files.length > 0) {
+//       const newPreviewFiles = [];
+//       for (let i = 0; i < files.length; i++) {
+//         const file = files[i];
+//         newPreviewFiles.push({
+//           id: uuidv4(), 
+//           name: file.name,
+//           url: URL.createObjectURL(file),
+//           uploaded: false, 
+//         });
+//       }
+//       setPreviewFiles(newPreviewFiles);
+//       setUploadUUID(uuidv4());
+//     }
+//   };
+
+//   const handleUpload = async () => {
+//     setLoading(true);
+//     const formData = new FormData();
+//     const files = document.querySelector('input[type="file"]').files;
+
+//     for (let i = 0; i < files.length; i++) {
+//       formData.append('files', files[i]);
+//     }
+
+//     try {
+//       const response = await axios.post('http://localhost:5000/upload', formData, {
+//         headers: { 'Content-Type': 'multipart/form-data' },
+//       });
+//       setUploadStatus('Files uploaded successfully!');
+//       console.log('Uploaded Files:', response.data.savedFiles);
+
+//       // Mark files as uploaded
+//       const updatedFiles = previewFiles.map(file => ({ ...file, uploaded: true }));
+//       setPreviewFiles(updatedFiles);
+//     } catch (error) {
+//       console.error(error);
+//       setUploadStatus('Failed to upload files. Please try again.');
+//     } finally {
+//       setLoading(false); 
+//     }
+//   };
+
+//   const handleDeletePhoto = (id) => {
+//     const updatedFiles = previewFiles.filter(file => file.id !== id);
+//     setPreviewFiles(updatedFiles);
+//   };
+
+//   return (
+//     <div className='min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center relative overflow-hidden'>
+//       <div className='absolute top-0 left-0 w-full h-full overflow-hidden'>
+//         <div className='absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-20 animate-float'></div>
+//         <div className='absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-green-400 to-teal-500 rounded-full opacity-20 animate-float-reverse'></div>
+//       </div>
+
+//       <div className='relative z-10 text-center px-4 w-full'>
+      
+//         <h1 className='text-6xl sm:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 animate-text-glow'>
+//           AI-Powered Image Recognizer
+//         </h1>
+
+//         <p className='mt-6 text-xl sm:text-2xl text-gray-300 max-w-2xl mx-auto animate-fade-in'>
+//           Harness the power of artificial intelligence to analyze and recognize images with unparalleled accuracy. Upload your photos or capture them using your camera.
+//         </p>
+      
+//         <div className='mt-12 animate-fade-in-up'>
+//           <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+//             <label className='inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'>
+//               <span className='mr-3 text-2xl'>📁</span> Upload Files
+//               <input
+//                 type='file'
+//                 className='hidden'
+//                 id='upload-files'
+//                 multiple
+//                 onChange={handleFileChange}
+//               />
+//             </label>
+//           </div>
+//         </div>
+
+//         {previewFiles.length > 0 && (
+//           <div className='mt-8 w-full max-w-6xl mx-auto animate-fade-in'>
+//             <h2 className='text-2xl font-semibold text-gray-300 mb-4'>Your Files:</h2>
+//             <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
+//               {previewFiles.map((file) => (
+//                 <div
+//                   key={file.id}
+//                   className='relative aspect-square overflow-hidden rounded-lg shadow-lg'
+//                 >
+//                   <img
+//                     src={file.url}
+//                     alt={file.name}
+//                     className={`w-full h-full object-cover ${file.uploaded ? 'opacity-50' : ''}`}
+//                   />
+//                   <div className='absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-sm'>
+//                     {file.name}
+//                   </div>
+//                   {file.uploaded && (
+//                     <button
+//                       onClick={() => handleDeletePhoto(file.id)}
+//                       className='absolute top-2 right-2 p-2 bg-red-600 rounded-full hover:bg-red-700 transition-all duration-300'
+//                     >
+//                       <AiOutlineDelete className="text-white" />
+//                     </button>
+//                   )}
+//                 </div>
+//               ))}
+//             </div>
+//             <button
+//               onClick={handleUpload}
+//               disabled={loading || previewFiles.every(file => file.uploaded)}
+//               className={`mt-6 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${
+//                 loading || previewFiles.every(file => file.uploaded)
+//                   ? 'opacity-50 cursor-not-allowed'
+//                   : 'hover:from-blue-700 hover:to-purple-700 hover:scale-105 hover:shadow-xl'
+//               }`}
+//             >
+//               {loading ? <AiOutlineLoading3Quarters className="animate-spin" /> : "Upload"}
+//             </button>
+//           </div>
+//         )}
+
+//         {uploadStatus && (
+//           <div className='mt-6 text-xl font-semibold text-green-500 animate-fade-in'>
+//             {uploadStatus}
+//           </div>
+//         )}
+//       </div>
+//       <div className='absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-gray-800 to-transparent z-0'>
+//         <div className='grid grid-cols-6 gap-4 opacity-30'>
+//           {[...Array(30)].map((_, i) => (
+//             <div
+//               key={i}
+//               className='w-4 h-4 bg-blue-500 rounded-full animate-pulse'
+//               style={{ animationDelay: `${i * 0.1}s` }}
+//             ></div>
+//           ))}
+//         </div>
+//       </div>
+//       <div className='absolute bottom-4 text-center text-gray-400 animate-fade-in'>
+//         <p>Powered by React & Node.js</p>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Home;
+
+
+
+
+// import axios from 'axios';
+// import { AiOutlineLoading3Quarters, AiOutlineDelete } from "react-icons/ai";
+// import { v4 as uuidv4 } from 'uuid';
+// import { useState ,useEffect } from 'react';
+
+// const Home = () => {
+//   const [previewFiles, setPreviewFiles] = useState([]);
+//   const [uploadStatus, setUploadStatus] = useState('');
+//   const [loading, setLoading] = useState(false);
+//   const [extractedTexts, setExtractedTexts] = useState([]);
+
+//   useEffect(() => {
+//     const fetchImages = async () => {
+//       try {
+//         const response = await axios.get('http://localhost:5000/images');
+//         setExtractedTexts(response.data);
+//       } catch (error) {
+//         console.error('Error fetching images:', error);
+//       }
+//     };
+//     fetchImages();
+//   }, []);
+
+//   const handleFileChange = (event) => {
+//     const files = event.target.files;
+//     if (files && files.length > 0) {
+//       const newPreviewFiles = Array.from(files).map((file) => ({
+//         id: uuidv4(), 
+//         name: file.name,
+//         url: URL.createObjectURL(file),
+//         uploaded: false,
+//       }));
+//       setPreviewFiles(newPreviewFiles);
+//     }
+//   };
+
+//   const handleUpload = async () => {
+//     setLoading(true);
+//     const files = document.querySelector('input[type="file"]').files;
+
+//     try {
+//       const uploadPromises = Array.from(files).map(async (file) => {
+//         const formData = new FormData();
+//         formData.append('file', file);
+
+//         const response = await axios.post('http://localhost:5000/upload', formData, {
+//           headers: { 'Content-Type': 'multipart/form-data' },
+//         });
+
+//         return response.data;
+//       });
+
+//       const results = await Promise.all(uploadPromises);
+//       setExtractedTexts((prevTexts) => [...prevTexts, ...results]);
+
+    
+//       setPreviewFiles((prevFiles) =>
+//         prevFiles.map((file) => ({ ...file, uploaded: true }))
+//       );
+
+//       setUploadStatus('Files uploaded and text extracted successfully!');
+//     } catch (error) {
+//       console.error(error);
+//       setUploadStatus('Failed to upload files or extract text. Please try again.');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleDeletePhoto = async (id) => {
+//     try {
+//       const fileToDelete = previewFiles.find((file) => file.id === id);
+//       if (fileToDelete) {
+//         await axios.delete(`http://localhost:5000/images/${fileToDelete.name}`);
+//         setPreviewFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
+//         setExtractedTexts((prevTexts) =>
+//           prevTexts.filter((text) => text.filename !== fileToDelete.name)
+//         );
+//       }
+//     } catch (error) {
+//       console.error('Error deleting file:', error);
+//     }
+//   };
+
+//   return (
+//     <div className='min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center relative overflow-hidden'>
+//       <div className='absolute top-0 left-0 w-full h-full overflow-hidden'>
+//         <div className='absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-20 animate-float'></div>
+//         <div className='absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-green-400 to-teal-500 rounded-full opacity-20 animate-float-reverse'></div>
+//       </div>
+
+//       <div className='relative z-10 text-center px-4 w-full'>
+//         <h1 className='text-6xl sm:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 animate-text-glow'>
+//           AI-Powered Image Recognizer
+//         </h1>
+
+//         <p className='mt-6 text-xl sm:text-2xl text-gray-300 max-w-2xl mx-auto animate-fade-in'>
+//           Harness the power of artificial intelligence to analyze and recognize images with unparalleled accuracy. Upload your photos or capture them using your camera.
+//         </p>
+
+//         <div className='mt-12 animate-fade-in-up'>
+//           <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+
+//             <label className='inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'>
+//               <span className='mr-3 text-2xl'>📁</span> Upload Files
+//               <input
+//                 type='file'
+//                 className='hidden'
+//                 id='upload-files'
+//                 multiple
+//                 onChange={handleFileChange}
+//               />
+//             </label>
+//           </div>
+//         </div>
+
+//         {previewFiles.length > 0 && (
+//           <div className='mt-8 w-full max-w-6xl mx-auto animate-fade-in'>
+//             <h2 className='text-2xl font-semibold text-gray-300 mb-4'>Your Files:</h2>
+//             <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
+//               {previewFiles.map((file) => (
+//                 <div
+//                   key={file.id}
+//                   className='relative aspect-square overflow-hidden rounded-lg shadow-lg'
+//                 >
+//                   <img
+//                     src={file.url}
+//                     alt={file.name}
+//                     className={`w-full h-full object-cover ${file.uploaded ? 'opacity-50' : ''}`}
+//                   />
+//                   <div className='absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-sm'>
+//                     {file.name}
+//                   </div>
+
+//                   {file.uploaded && (
+//                     <button
+//                       onClick={() => handleDeletePhoto(file.id)}
+//                       className='absolute top-2 right-2 p-2 bg-red-600 rounded-full hover:bg-red-700 transition-all duration-300'
+//                     >
+//                       <AiOutlineDelete className="text-white" />
+//                     </button>
+//                   )}
+//                 </div>
+//               ))}
+//             </div>
+
+//             <button
+//               onClick={handleUpload}
+//               disabled={loading || previewFiles.every((file) => file.uploaded)}
+//               className={`mt-6 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${
+//                 loading || previewFiles.every((file) => file.uploaded)
+//                   ? 'opacity-50 cursor-not-allowed'
+//                   : 'hover:from-blue-700 hover:to-purple-700 hover:scale-105 hover:shadow-xl'
+//               }`}
+//             >
+//               {loading ? <AiOutlineLoading3Quarters className="animate-spin" /> : "Upload"}
+//             </button>
+//           </div>
+//         )}
+
+//         {extractedTexts.length > 0 && (
+//           <div className='mt-8 w-full max-w-6xl mx-auto animate-fade-in'>
+//             <h2 className='text-2xl font-semibold text-gray-300 mb-4'>Extracted Text:</h2>
+//             {extractedTexts.map((item, index) => (
+//               <div key={index} className='mb-4 p-4 bg-gray-800 rounded-lg'>
+//                 <h3 className='text-lg font-semibold text-gray-200'>{item.filename}</h3>
+//                 <p className='text-gray-300'>{item.extractedText}</p>
+//               </div>
+//             ))}
+//           </div>
+//         )}
+//         {uploadStatus && (
+//           <div className='mt-6 text-xl font-semibold text-green-500 animate-fade-in'>
+//             {uploadStatus}
+//           </div>
+//         )}
+//       </div>
+//       <div className='absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-gray-800 to-transparent z-0'>
+//         <div className='grid grid-cols-6 gap-4 opacity-30'>
+//           {[...Array(30)].map((_, i) => (
+//             <div
+//               key={i}
+//               className='w-4 h-4 bg-blue-500 rounded-full animate-pulse'
+//               style={{ animationDelay: `${i * 0.1}s` }}
+//             ></div>
+//           ))}
+//         </div>
+//       </div>
+
+//       <div className='absolute bottom-4 text-center text-gray-400 animate-fade-in'>
+//         <p>Powered by React & Node.js</p>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Home;
+
+
+// import React, { useState } from 'react';
+// import axios from 'axios';
+// import { AiOutlineLoading3Quarters, AiOutlineDelete } from "react-icons/ai";
+// import { v4 as uuidv4 } from 'uuid';
+// import { AI_PROMPT } from '../service/Exp';
+
+// const Home = () => {
+//   const [previewFiles, setPreviewFiles] = useState([]);
+//   const [uploadStatus, setUploadStatus] = useState('');
+//   const [loading, setLoading] = useState(false);
+//   const [uploadUUID, setUploadUUID] = useState('');
+//   const [extractedTexts, setExtractedTexts] = useState({}); 
+
+//   const handleFileChange = (event) => {
+//     const files = event.target.files;
+//     if (files && files.length > 0) {
+//       const newPreviewFiles = [];
+//       for (let i = 0; i < files.length; i++) {
+//         const file = files[i];
+//         newPreviewFiles.push({
+//           id: uuidv4(), 
+//           name: file.name,
+//           url: URL.createObjectURL(file),
+//           uploaded: false,
+//         });
+//       }
+//       setPreviewFiles(newPreviewFiles);
+//       setUploadUUID(uuidv4());
+//     }
+//   };
+
+
+//   const handlesubmit= ()=>{
+//     console.log('clicked');
+//     const FINAL_PROMPT=AI_PROMPT
+//     .replace('question',)
+//     console.log(FINAL_PROMPT);
+//   }
+
+//   const handleUpload = async () => {
+//     setLoading(true);
+//     const formData = new FormData();
+//     const files = document.querySelector('input[type="file"]').files;
+
+//     for (let i = 0; i < files.length; i++) {
+//       formData.append('files', files[i]);
+//     }
+
+//     try {
+//       const response = await axios.post('http://localhost:5000/upload', formData, {
+//         headers: { 'Content-Type': 'multipart/form-data' },
+//       });
+//       setUploadStatus('Files uploaded successfully!');
+//       console.log('Uploaded Files:', response.data.savedFiles);
+
+//       const updatedFiles = previewFiles.map(file => ({ ...file, uploaded: true }));
+//       setPreviewFiles(updatedFiles);
+
+//       const texts = {};
+//       response.data.savedFiles.forEach(file => {
+//         texts[file.originalName] = file.extractedText;
+//       });
+//       setExtractedTexts(texts);
+//     } catch (error) {
+//       console.error(error);
+//       setUploadStatus('Failed to upload files. Please try again.');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleDeletePhoto = (id) => {
+//     const updatedFiles = previewFiles.filter(file => file.id !== id);
+//     setPreviewFiles(updatedFiles);
+//   };
+
+//   return (
+//     <div>
+//       <div className='min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center relative overflow-hidden'>
+//         <div className='absolute top-0 left-0 w-full h-full overflow-hidden'>
+//           <div className='absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-20 animate-float'></div>
+//           <div className='absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-green-400 to-teal-500 rounded-full opacity-20 animate-float-reverse'></div>
+//         </div>
+
+//         <div className='relative z-10 text-center px-4 w-full'>
+//           <h1 className='text-6xl  sm:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 animate-text-glow'>
+//             AI-Powered Image Recognizer
+//           </h1>
+
+//           <p className='mt-6 text-xl sm:text-2xl text-gray-300 max-w-2xl mx-auto animate-fade-in'>
+//             Harness the power of artificial intelligence to analyze and recognize images with unparalleled accuracy. Upload your photos or capture them using your camera.
+//           </p>
+//           <div className='mt-12 animate-fade-in-up'>
+//             <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+//               <label className='inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'>
+//                 <span className='mr-3 text-2xl'>📁</span> Upload Files
+//                 <input
+//                   type='file'
+//                   className='hidden'
+//                   id='upload-files'
+//                   multiple
+//                   onChange={handleFileChange}
+//                 />
+//               </label>
+//             </div>
+//           </div>
+//           {previewFiles.length > 0 && (
+//             <div className='mt-8 w-full max-w-6xl mx-auto animate-fade-in'>
+//               <h2 className='text-2xl font-semibold text-gray-300 mb-4'>Your Files:</h2>
+//               <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
+//                 {previewFiles.map((file) => (
+//                   <div
+//                     key={file.id}
+//                     className='relative aspect-square overflow-hidden rounded-lg shadow-lg'
+//                   >
+//                     <img
+//                       src={file.url}
+//                       alt={file.name}
+//                       className={`w-full h-full  ${file.uploaded ? 'opacity-50' : ''}`}
+//                     />
+//                     <div className='absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-sm'>
+//                       {file.name}
+//                     </div>
+//                     {file.uploaded && (
+//                       <button
+//                         onClick={() => handleDeletePhoto(file.id)}
+//                         className='absolute top-2 right-2 p-2 bg-red-600 rounded-full hover:bg-red-700 transition-all duration-300'
+//                       >
+//                         <AiOutlineDelete className="text-white" />
+//                       </button>
+//                     )}
+//                   </div>
+//                 ))}
+//               </div>
+
+//               <button
+//                 onClick={handleUpload}
+//                 disabled={loading || previewFiles.every(file => file.uploaded)}
+//                 className={`mt-6 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${loading || previewFiles.every(file => file.uploaded)
+//                     ? 'opacity-50 cursor-not-allowed'
+//                     : 'hover:from-blue-700 hover:to-purple-700 hover:scale-105 hover:shadow-xl'
+//                   }`}
+//               >
+//                 {loading ? <AiOutlineLoading3Quarters className="animate-spin" /> : "Upload"}
+//               </button>
+//             </div>
+//           )}
+
+//           {Object.keys(extractedTexts).length > 0 && (
+//             <div className='mt-8 w-full max-w-6xl mx-auto animate-fade-in'>
+//               <h2 className='text-2xl font-semibold text-gray-300 mb-4'>Extracted Texts:</h2>
+//               {Object.entries(extractedTexts).map(([fileName, text]) => (
+//                 <div key={fileName} className='mb-4'>
+
+//                   {/* <p className='text-gray-400 '>{text}</p> */}
+//                   <div className="max-w-lg mx-auto bg-gray-800 p-6 rounded-lg shadow-lg ">
+//                     <div className="text-xl font-semibold text-gray-400 mb-4">{text}</div>
+//                     <textarea className='w-full border border-gray-600 pt-2 pl-2 rounded-lg'  name="question" placeholder='Ask you questions'></textarea>
+//                     <button onClick={handlesubmit} className='border border-gray-400 bg-green-400 p-3 rounded-md mt-4 mb-2'>submit</button>
+//                     <div className="text-gray-700 bg-gray-300 p-4 rounded-md border border-gray-500">
+//                       {text}
+//                     </div>
+//                   </div>
+
+//                 </div>
+//               ))}
+//             </div>
+//           )}
+
+//           {uploadStatus && (
+//             <div className='mt-6 text-xl font-semibold text-green-500 animate-fade-in'>
+//               {uploadStatus}
+//             </div>
+//           )}
+//         </div>
+
+
+//         <div className='absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-gray-800 to-transparent z-0'>
+//           <div className='grid grid-cols-6 gap-4 opacity-30'>
+//             {[...Array(30)].map((_, i) => (
+//               <div
+//                 key={i}
+//                 className='w-4 h-4 bg-blue-500 rounded-full animate-pulse'
+//                 style={{ animationDelay: `${i * 0.1}s` }}
+//               ></div>
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+
+//       <h2 className='text-center text-gray-300 bg-gray-700 p-12'>Created By Jay Gurjar AI Travel Planner App</h2>
+
+//     </div>
+//   );
+// };
+
+// export default Home;
+
+
+
+// import React, { useState } from 'react';
+// import axios from 'axios';
+// import { AiOutlineLoading3Quarters, AiOutlineDelete } from 'react-icons/ai';
+// import { v4 as uuidv4 } from 'uuid';
+// import { jsPDF } from 'jspdf';
+
+// const Home = () => {
+//   const [previewFiles, setPreviewFiles] = useState([]); 
+//   const [uploadStatus, setUploadStatus] = useState(''); 
+//   const [loading, setLoading] = useState(false); 
+//   const [extractedTexts, setExtractedTexts] = useState({}); 
+//   const [generatedAnswers, setGeneratedAnswers] = useState({});
+
+//   const [purpose, setPurpose] = useState('');
+//   const [answerType, setAnswerType] = useState('');
+//   const [projectDetails, setProjectDetails] = useState({ paragraphs: 0, words: 0 });
+
+//   const handleFileChange = (event) => {
+//     const files = event.target.files;
+//     if (files && files.length > 0) {
+//       const newPreviewFiles = [];
+//       for (let i = 0; i < files.length; i++) {
+//         const file = files[i];
+//         newPreviewFiles.push({
+//           id: uuidv4(), 
+//           name: file.name,
+//           url: URL.createObjectURL(file),
+//           uploaded: false, 
+//         });
+//       }
+//       setPreviewFiles((prevFiles) => [...prevFiles, ...newPreviewFiles]); 
+//     }
+//   };
+
+//   const handleUpload = async () => {
+//     setLoading(true);
+//     const formData = new FormData();
+//     const files = document.querySelector('input[type="file"]').files;
+
+//     for (let i = 0; i < files.length; i++) {
+//       formData.append('files', files[i]);
+//     }
+
+//     try {
+//       const response = await axios.post('http://localhost:5000/upload', formData, {
+//         headers: { 'Content-Type': 'multipart/form-data' },
+//       });
+//       setUploadStatus('Files uploaded successfully!');
+
+//       const updatedFiles = previewFiles.map((file) => ({ ...file, uploaded: true }));
+//       setPreviewFiles(updatedFiles);
+
+//       const texts = {};
+//       response.data.savedFiles.forEach((file) => {
+//         texts[file.originalName] = file.extractedText;
+//       });
+//       setExtractedTexts(texts);
+//     } catch (error) {
+//       console.error(error);
+//       setUploadStatus('Failed to upload files. Please try again.');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleDeletePhoto = (id) => {
+//     const updatedFiles = previewFiles.filter((file) => file.id !== id);
+//     setPreviewFiles(updatedFiles);
+//   };
+
+//   const handlesubmit = async (fileName, text) => {
+//     const userQuestion = document.querySelector(`textarea[name="question-${fileName}"]`).value;
+
+//     if (!userQuestion.trim()) {
+//       alert('Please enter a question');
+//       return;
+//     }
+
+//     try {
+//       let prompt = `Purpose: ${purpose}\n\n`;
+//       if (purpose === 'education') {
+//         prompt += `Answer Type: ${answerType}\n\n`;
+//         if (answerType === 'project') {
+//           prompt += `Project Details: ${projectDetails.paragraphs} paragraphs, ${projectDetails.words} words\n\n`;
+//         } else if (answerType === 'long') {
+//           prompt += `Provide a detailed answer in 3-5 paragraphs with 100-150 words.\n\n`;
+//         } else if (answerType === 'short') {
+//           prompt += `Provide a concise answer in 2-3 paragraphs with 50-80 words.\n\n`;
+//         } else if (answerType === 'one-word') {
+//           prompt += `Provide a one-word answer or a brief response in 1-2 lines (10 words or less).\n\n`;
+//         }
+//       }
+//       prompt += `Given the following text: ${text}\n\nAnswer the following question: ${userQuestion}`;
+
+//       const response = await axios.post('http://localhost:5000/api/ask', {
+//         text,
+//         question: userQuestion,
+//         purpose,
+//         answerType,
+//         projectDetails,
+//       });
+
+//       setGeneratedAnswers((prevAnswers) => ({
+//         ...prevAnswers,
+//         [fileName]: response.data.answer,
+//       }));
+//     } catch (error) {
+//       console.error('Error submitting question:', error);
+//       alert('Failed to get answer from AI');
+//     }
+//   };
+
+//   const downloadPdf = () => {
+//     const doc = new jsPDF();
+
+//     let yOffset = 20;
+
+//     Object.entries(extractedTexts).forEach(([fileName, text], index) => {
+//       const question = document.querySelector(`textarea[name="question-${fileName}"]`).value;
+//       const answer = generatedAnswers[fileName];
+
+//       doc.setFontSize(16);
+//       doc.setFont('helvetica', 'bold');
+//       doc.text(`Question ${index + 1}: ${question}`, 10, yOffset);
+
+//       yOffset += 10;
+
+//       doc.setFontSize(12);
+//       doc.setFont('helvetica', 'normal');
+//       const splitAnswer = doc.splitTextToSize(answer, 180);
+//       doc.text(splitAnswer, 10, yOffset);
+
+//       yOffset += splitAnswer.length * 10 + 20;
+//     });
+
+//     doc.save('all_questions_answers.pdf');
+//   };
+
+//   return (
+//     <div>
+//       <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center relative overflow-hidden">
+  
+//         <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
+//           <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-20 animate-float"></div>
+//           <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-green-400 to-teal-500 rounded-full opacity-20 animate-float-reverse"></div>
+//         </div>
+
+//         <div className="relative z-10 text-center px-4 w-full">
+//           <h1 className="text-6xl sm:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 animate-text-glow">
+//             AI-Powered Image Recognizer
+//           </h1>
+
+//           <p className="mt-6 text-xl sm:text-2xl text-gray-300 max-w-2xl mx-auto animate-fade-in">
+//             Harness the power of artificial intelligence to analyze and recognize images with unparalleled accuracy. Upload your photos or capture them using your camera.
+//           </p>
+
+//           <div className="mt-8">
+//             <h2 className="text-2xl font-semibold text-gray-300 mb-4">What is the purpose of this photo?</h2>
+//             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+//               <button
+//                 onClick={() => setPurpose('education')}
+//                 className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${purpose === 'education' ? 'bg-blue-700' : 'hover:from-blue-700 hover:to-purple-700 hover:scale-105 hover:shadow-xl'}`}
+//               >
+//                 Education
+//               </button>
+//               <button
+//                 onClick={() => setPurpose('finance')}
+//                 className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-green-600 to-teal-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${purpose === 'finance' ? 'bg-green-700' : 'hover:from-green-700 hover:to-teal-700 hover:scale-105 hover:shadow-xl'}`}
+//               >
+//                 Finance
+//               </button>
+//               <button
+//                 onClick={() => setPurpose('health')}
+//                 className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-pink-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${purpose === 'health' ? 'bg-red-700' : 'hover:from-red-700 hover:to-pink-700 hover:scale-105 hover:shadow-xl'}`}
+//               >
+//                 Health
+//               </button>
+//             </div>
+//           </div>
+//           {purpose === 'education' && (
+//             <div className="mt-8">
+//               <h2 className="text-2xl font-semibold text-gray-300 mb-4">What type of answer do you want?</h2>
+//               <div className="flex flex-col sm:flex-row gap-4 justify-center">
+//                 <button
+//                   onClick={() => setAnswerType('short')}
+//                   className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${answerType === 'short' ? 'bg-blue-700' : 'hover:from-blue-700 hover:to-purple-700 hover:scale-105 hover:shadow-xl'}`}
+//                 >
+//                   Short Answer
+//                 </button>
+//                 <button
+//                   onClick={() => setAnswerType('one-word')}
+//                   className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-green-600 to-teal-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${answerType === 'one-word' ? 'bg-green-700' : 'hover:from-green-700 hover:to-teal-700 hover:scale-105 hover:shadow-xl'}`}
+//                 >
+//                   One-Word Answer
+//                 </button>
+//                 <button
+//                   onClick={() => setAnswerType('long')}
+//                   className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-pink-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${answerType === 'long' ? 'bg-red-700' : 'hover:from-red-700 hover:to-pink-700 hover:scale-105 hover:shadow-xl'}`}
+//                 >
+//                   Long Answer
+//                 </button>
+//                 <button
+//                   onClick={() => setAnswerType('project')}
+//                   className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-yellow-600 to-orange-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${answerType === 'project' ? 'bg-yellow-700' : 'hover:from-yellow-700 hover:to-orange-700 hover:scale-105 hover:shadow-xl'}`}
+//                 >
+//                   Project
+//                 </button>
+//               </div>
+//             </div>
+//           )}
+//           {answerType === 'project' && (
+//             <div className="mt-8">
+//               <h2 className="text-2xl font-semibold text-gray-800 mb-4">Project Details</h2>
+//               <div className="flex flex-col sm:flex-row gap-4 justify-center">
+//                 <input
+//                   type="number"
+//                   placeholder="Number of Paragraphs"
+//                   className="p-2 rounded-lg text-white"
+//                   value={projectDetails.paragraphs}
+//                   onChange={(e) => setProjectDetails({ ...projectDetails, paragraphs: e.target.value })}
+//                 />
+//                 <input
+//                   type="number"
+//                   placeholder="Number of Words"
+//                   className="p-2 rounded-lg text-white"
+//                   value={projectDetails.words}
+//                   onChange={(e) => setProjectDetails({ ...projectDetails, words: e.target.value })}
+//                 />
+//               </div>
+//             </div>
+//           )}
+
+//           <div className="mt-12 animate-fade-in-up">
+//             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+//               <label className="inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+//                 <span className="mr-3 text-2xl">📁</span> Upload Files
+//                 <input
+//                   type="file"
+//                   className="hidden"
+//                   id="upload-files"
+//                   multiple
+//                   onChange={handleFileChange}
+//                 />
+//               </label>
+//               <label className="inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-green-600 to-teal-600 rounded-lg cursor-pointer hover:from-green-700 hover:to-teal-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+//                 <span className="mr-3 text-2xl">➕</span> Add Files
+//                 <input
+//                   type="file"
+//                   className="hidden"
+//                   id="add-files"
+//                   multiple
+//                   onChange={handleFileChange}
+//                 />
+//               </label>
+//             </div>
+//           </div>
+
+//           {previewFiles.length > 0 && (
+//             <div className="mt-8 w-full max-w-6xl mx-auto animate-fade-in">
+//               <h2 className="text-2xl font-semibold text-gray-300 mb-4">Your Files:</h2>
+//               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+//                 {previewFiles.map((file) => (
+//                   <div
+//                     key={file.id}
+//                     className="relative aspect-square overflow-hidden rounded-lg shadow-lg"
+//                   >
+//                     <img
+//                       src={file.url}
+//                       alt={file.name}
+//                       className={`w-full h-full ${file.uploaded ? 'opacity-50' : ''}`}
+//                     />
+//                     <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-sm">
+//                       {file.name}
+//                     </div>
+//                     {file.uploaded && (
+//                       <button
+//                         onClick={() => handleDeletePhoto(file.id)}
+//                         className="absolute top-2 right-2 p-2 bg-red-600 rounded-full hover:bg-red-700 transition-all duration-300"
+//                       >
+//                         <AiOutlineDelete className="text-white" />
+//                       </button>
+//                     )}
+//                   </div>
+//                 ))}
+//               </div>
+//               <button
+//                 onClick={handleUpload}
+//                 disabled={loading || previewFiles.every((file) => file.uploaded)}
+//                 className={`mt-6 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${
+//                   loading || previewFiles.every((file) => file.uploaded)
+//                     ? 'opacity-50 cursor-not-allowed'
+//                     : 'hover:from-blue-700 hover:to-purple-700 hover:scale-105 hover:shadow-xl'
+//                 }`}
+//               >
+//                 {loading ? <AiOutlineLoading3Quarters className="animate-spin" /> : 'Upload'}
+//               </button>
+//             </div>
+//           )}
+//           {Object.keys(extractedTexts).length > 0 && (
+//             <div className="mt-8 w-full max-w-6xl mx-auto animate-fade-in">
+//               <h2 className="text-2xl font-semibold text-gray-300 mb-4">Extracted Texts:</h2>
+//               {Object.entries(extractedTexts).map(([fileName, text]) => (
+//                 <div key={fileName} className="mb-4">
+//                   <div className="max-w-lg mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
+//                     <div className="text-xl font-semibold text-gray-400 mb-4">{text}</div>
+//                     <textarea
+//                       className="w-full border border-gray-600 pt-2 pl-2 rounded-lg"
+//                       name={`question-${fileName}`}
+//                       placeholder="Ask your questions"
+//                     />
+//                     <button
+//                       onClick={() => handlesubmit(fileName, text)}
+//                       className="border border-gray-400 bg-green-400 p-3 rounded-md mt-4 mb-2"
+//                     >
+//                       Submit
+//                     </button>
+//                     {generatedAnswers[fileName] && (
+//                       <div className="text-gray-700 bg-gray-300 p-4 rounded-md border border-gray-500 mt-4">
+//                         {generatedAnswers[fileName]}
+//                       </div>
+//                     )}
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           )}
+
+//           {Object.keys(generatedAnswers).length > 0 && (
+//             <div className="mt-8">
+//               <button
+//                 onClick={downloadPdf}
+//                 className="px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-yellow-600 to-orange-600 rounded-lg cursor-pointer hover:from-yellow-700 hover:to-orange-700 transition-all duration-300"
+//               >
+//                 Download PDF
+//               </button>
+//             </div>
+//           )}
+
+//           {uploadStatus && (
+//             <div className="mt-6 text-xl font-semibold text-green-500 animate-fade-in">
+//               {uploadStatus}
+//             </div>
+//           )}
+//         </div>
+
+//         <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-gray-800 to-transparent z-0">
+//           <div className="grid grid-cols-6 gap-4 opacity-30">
+//             {[...Array(30)].map((_, i) => (
+//               <div
+//                 key={i}
+//                 className="w-4 h-4 bg-blue-500 rounded-full animate-pulse"
+//                 style={{ animationDelay: `${i * 0.1}s` }}
+//               ></div>
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+
+//       <h2 className="text-center text-gray-300 bg-gray-700 p-12">Created By Jay Gurjar AI Travel Planner App</h2>
+//     </div>
+//   );
+// };
+
+// export default Home;
+
+
+
+
+// import React, { useState } from 'react';
+// import axios from 'axios';
+// import { AiOutlineLoading3Quarters, AiOutlineDelete } from 'react-icons/ai';
+// import { v4 as uuidv4 } from 'uuid';
+// import { jsPDF } from 'jspdf';
+
+
+
+// const Home = () => {
+//   const [previewFiles, setPreviewFiles] = useState([]);
+//   const [uploadStatus, setUploadStatus] = useState('');
+//   const [loading, setLoading] = useState(false);
+//   const [extractedTexts, setExtractedTexts] = useState({});
+//   const [generatedAnswers, setGeneratedAnswers] = useState({});
+
+
+//   const [purpose, setPurpose] = useState('');
+//   const [answerType, setAnswerType] = useState('');
+//   const [projectDetails, setProjectDetails] = useState({ paragraphs: 0, words: 0 });
+
+
+//   const handleFileChange = (event) => {
+//     const files = event.target.files;
+//     if (files && files.length > 0) {
+//       const newPreviewFiles = [];
+//       for (let i = 0; i < files.length; i++) {
+//         const file = files[i];
+//         newPreviewFiles.push({
+//           id: uuidv4(),
+//           name: file.name,
+//           url: URL.createObjectURL(file),
+//           uploaded: false,
+//         });
+//       }
+//       setPreviewFiles((prevFiles) => [...prevFiles, ...newPreviewFiles]);
+//     }
+//   };
+
+//   const handleUpload = async () => {
+//     setLoading(true);
+//     const formData = new FormData();
+//     const files = document.querySelector('input[type="file"]').files;
+
+//     for (let i = 0; i < files.length; i++) {
+//       formData.append('files', files[i]);
+//     }
+
+//     try {
+//       const response = await axios.post('http://localhost:5000/upload', formData, {
+//         headers: { 'Content-Type': 'multipart/form-data' },
+//       });
+//       setUploadStatus('Files uploaded successfully!');
+
+
+//       const updatedFiles = previewFiles.map((file) => ({ ...file, uploaded: true }));
+//       setPreviewFiles(updatedFiles);
+
+//       const texts = {};
+//       response.data.savedFiles.forEach((file) => {
+//         texts[file.originalName] = file.extractedText;
+//       });
+//       setExtractedTexts(texts);
+//     } catch (error) {
+//       console.error(error);
+//       setUploadStatus('Failed to upload files. Please try again.');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+
+//   const handleDeletePhoto = (id) => {
+//     const updatedFiles = previewFiles.filter((file) => file.id !== id);
+//     setPreviewFiles(updatedFiles);
+//   };
+
+
+//   const handlesubmit = async (fileName, text) => {
+//     const userQuestion = document.querySelector(`textarea[name="question-${fileName}"]`).value;
+
+//     if (!userQuestion.trim()) {
+//       alert('Please enter a question');
+//       return;
+//     }
+
+//     try {
+
+//       let prompt = `Purpose: ${purpose}\n\n`;
+//       if (purpose === 'education') {
+//         prompt += `Answer Type: ${answerType}\n\n`;
+//         if (answerType === 'project') {
+//           prompt += `Project Details: ${projectDetails.paragraphs} paragraphs, ${projectDetails.words} words\n\n`;
+//         } else if (answerType === 'long') {
+//           prompt += `Provide a detailed answer in 3-5 paragraphs with 100-150 words.\n\n`;
+//         } else if (answerType === 'short') {
+//           prompt += `Provide a concise answer in 2-3 paragraphs with 50-80 words.\n\n`;
+//         } else if (answerType === 'one-word') {
+//           prompt += `Provide a one-word answer or a brief response in 1-2 lines (10 words or less).\n\n`;
+//         }
+//       }
+//       prompt += `Given the following text: ${text}\n\nAnswer the following question: ${userQuestion}`;
+
+
+//       const response = await axios.post('http://localhost:5000/api/ask', {
+//         text,
+//         question: userQuestion,
+//         purpose,
+//         answerType,
+//         projectDetails,
+//       });
+
+
+//       setGeneratedAnswers((prevAnswers) => ({
+//         ...prevAnswers,
+//         [fileName]: response.data.answer,
+//       }));
+//     } catch (error) {
+//       console.error('Error submitting question:', error);
+//       alert('Failed to get answer from AI');
+//     }
+//   };
+
+//   const downloadPdf = () => {
+//     const doc = new jsPDF();
+
+//     let yOffset = 20;
+
+//     Object.entries(extractedTexts).forEach(([fileName, text], index) => {
+
+//       const question = document.querySelector(`textarea[name="question-${fileName}"]`).value;
+//       const answer = generatedAnswers[fileName];
+
+//       doc.setFontSize(16);
+//       doc.setFont('helvetica', 'bold');
+//       doc.text(`Question ${index + 1}: ${question}`, 10, yOffset);
+
+//       yOffset += 10;
+
+//       doc.setFontSize(12);
+//       doc.setFont('helvetica', 'normal');
+//       const splitAnswer = doc.splitTextToSize(answer, 180);
+//       doc.text(splitAnswer, 10, yOffset);
+
+//       yOffset += splitAnswer.length * 10 + 20;
+
+//       if (yOffset > 280) {
+//         doc.addPage();
+//         yOffset = 20;
+//       }
+//     });
+
+//     doc.save('Answer.pdf');
+//   };
+
+//   return (
+//     <div>
+//       <div className="min-h-screen bg-gray-900  flex flex-col items-center justify-center relative overflow-hidden pt-6">
+//         <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
+//           <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-20 animate-float"></div>
+//           <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-green-400 to-teal-500 rounded-full opacity-20 animate-float-reverse"></div>
+//         </div>
+
+//         <div className="relative z-10 text-center  pb-4 text-gray-500 w-full">
+//           <h1 className="text-6xl sm:text-8xl font-bold bg-clip-text bg-gradient-to-r animate-text-glow">
+//             AI-Powered Image Recognizer
+//           </h1>
+
+//           <p className="mt-6 text-xl sm:text-2xl text-gray-500 max-w-2xl mx-auto animate-fade-in">
+//             Harness the power of artificial intelligence to analyze and recognize images with unparalleled accuracy. Upload your photos or capture them using your camera.
+//           </p>
+
+//           <div className="mt-8">
+//             <h2 className="text-2xl font-semibold text-gray-300 mb-4">What is the purpose of this photo?</h2>
+//             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+//               <button
+//                 onClick={() => setPurpose('education')}
+//                 className={`px-4 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${purpose === 'education' ? 'bg-blue-700' : 'hover:from-blue-500 hover:to-purple-500 hover:scale-105 hover:shadow-xl'}`}
+//               >
+//                 Education
+//               </button>
+//               <button
+//                 onClick={() => setPurpose('finance')}
+//                 className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-green-600 to-teal-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${purpose === 'finance' ? 'bg-green-700' : 'hover:from-green-700 hover:to-teal-700 hover:scale-105 hover:shadow-xl'}`}
+//               >
+//                 Finance
+//               </button>
+//               <button
+//                 onClick={() => setPurpose('health')}
+//                 className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-pink-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${purpose === 'health' ? 'bg-red-700' : 'hover:from-red-700 hover:to-pink-700 hover:scale-105 hover:shadow-xl'}`}
+//               >
+//                 Health
+//               </button>
+//             </div>
+//           </div>
+
+//           {purpose === 'education' && (
+//             <div className="mt-8">
+//               <h2 className="text-2xl font-semibold text-gray-300 mb-4">What type of answer do you want?</h2>
+//               <div className="flex flex-col sm:flex-row gap-4 justify-center">
+//                 <button
+//                   onClick={() => setAnswerType('short')}
+//                   className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${answerType === 'short' ? 'bg-blue-700' : 'hover:from-blue-700 hover:to-purple-700 hover:scale-105 hover:shadow-xl'}`}
+//                 >
+//                   Short Answer
+//                 </button>
+//                 <button
+//                   onClick={() => setAnswerType('one-word')}
+//                   className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-green-600 to-teal-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${answerType === 'one-word' ? 'bg-green-700' : 'hover:from-green-700 hover:to-teal-700 hover:scale-105 hover:shadow-xl'}`}
+//                 >
+//                   One-Word Answer
+//                 </button>
+//                 <button
+//                   onClick={() => setAnswerType('long')}
+//                   className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-pink-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${answerType === 'long' ? 'bg-red-700' : 'hover:from-red-700 hover:to-pink-700 hover:scale-105 hover:shadow-xl'}`}
+//                 >
+//                   Long Answer
+//                 </button>
+//                 <button
+//                   onClick={() => setAnswerType('project')}
+//                   className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-yellow-600 to-orange-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${answerType === 'project' ? 'bg-yellow-700' : 'hover:from-yellow-700 hover:to-orange-700 hover:scale-105 hover:shadow-xl'}`}
+//                 >
+//                   Project
+//                 </button>
+//               </div>
+//             </div>
+//           )}
+
+//           {answerType === 'project' && (
+//             <div className="mt-8">
+//               <h2 className="text-2xl font-bold text-gray-700 mb-4">Project Details</h2>
+//               <div className="flex flex-col sm:flex-row gap-4 justify-center inline-block">
+//                <div className=' p-2'>
+//                number of paragraph
+//                 <input
+//                   type="number"
+//                   placeholder="Number of Paragraphs"
+//                   className="p-2 rounded-lg text-white"
+//                   value={projectDetails.paragraphs}
+//                   onChange={(e) => setProjectDetails({ ...projectDetails, paragraphs: e.target.value })}
+//                 />
+//                </div>
+
+
+//                <div>
+//                number of words
+//                 <input
+//                   type="number"
+//                   placeholder="Number of Words"
+//                   className="p-2 rounded-lg text-white"
+//                   value={projectDetails.words}
+//                   onChange={(e) => setProjectDetails({ ...projectDetails, words: e.target.value })}
+//                 />
+//                </div>
+
+//               </div>
+//             </div>
+//           )}
+
+//           <div className="mt-12 animate-fade-in-up">
+//             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+//               <label className="inline-flex items-center px-4 py-4 text-lg font-semibold text-white bg-gradient-to-r from-gray-600  rounded-lg cursor-pointer hover:from-gray-400 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+//                 <span className="mr-3 text-2xl">📁</span> Upload Files
+//                 <input
+//                   type="file"
+//                   className="hidden"
+//                   id="upload-files"
+//                   multiple
+//                   onChange={handleFileChange}
+//                 />
+//               </label>
+//             </div>
+//           </div>
+
+//           {previewFiles.length > 0 && (
+//             <div className="mt-8 w-full max-w-6xl mx-auto animate-fade-in">
+//               <h2 className="text-2xl font-semibold text-gray-300 mb-4">Your Files:</h2>
+//               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+//                 {previewFiles.map((file) => (
+//                   <div
+//                     key={file.id}
+//                     className="relative aspect-square overflow-hidden rounded-lg shadow-lg"
+//                   >
+//                     <img
+//                       src={file.url}
+//                       alt={file.name}
+//                       className={`w-full h-full ${file.uploaded ? 'opacity-50' : ''}`}
+//                     />
+//                     <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-sm">
+//                       {file.name}
+//                     </div>
+//                     {file.uploaded && (
+//                       <button
+//                         onClick={() => handleDeletePhoto(file.id)}
+//                         className="absolute top-2 right-2 p-2 bg-red-600 rounded-full hover:bg-red-700 transition-all duration-300"
+//                       >
+//                         <AiOutlineDelete className="text-white" />
+//                       </button>
+//                     )}
+//                   </div>
+//                 ))}
+//               </div>
+
+//               <button
+//                 onClick={handleUpload}
+//                 disabled={loading || previewFiles.every((file) => file.uploaded)}
+//                 className={`mt-6 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${loading || previewFiles.every((file) => file.uploaded)
+//                     ? 'opacity-50 cursor-not-allowed'
+//                     : 'hover:from-blue-700 hover:to-purple-700 hover:scale-105 hover:shadow-xl'
+//                   }`}
+//               >
+//                 {loading ? <AiOutlineLoading3Quarters className="animate-spin" /> : 'Upload'}
+//               </button>
+//             </div>
+//           )}
+
+//           {Object.keys(extractedTexts).length > 0 && (
+//             <div className="mt-8 w-full max-w-6xl mx-auto animate-fade-in">
+//               <h2 className="text-2xl font-semibold text-gray-300 mb-4">Extracted Texts:</h2>
+//               {Object.entries(extractedTexts).map(([fileName, text]) => (
+//                 <div key={fileName} className="mb-4">
+//                   <div className="max-w-lg mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
+//                     <div className="text-xl font-semibold text-gray-400 mb-4">{text}</div>
+//                     <textarea
+//                       className="w-full border border-gray-600 pt-2 pl-2 rounded-lg"
+//                       name={`question-${fileName}`}
+//                       placeholder="Ask your questions"
+//                     />
+//                     <button
+//                       onClick={() => handlesubmit(fileName, text)}
+//                       className="border border-gray-400 bg-green-400 p-3 rounded-md mt-4 mb-2"
+//                     >
+//                       Submit
+//                     </button>
+//                     {generatedAnswers[fileName] && (
+//                       <div className="text-gray-700 bg-gray-300 p-4 rounded-md border border-gray-500 mt-4">
+//                         {generatedAnswers[fileName]}
+//                       </div>
+//                     )}
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           )}
+
+//           {Object.keys(generatedAnswers).length > 0 && (
+//             <div className="mt-8">
+//               <button
+//                 onClick={downloadPdf}
+//                 className="px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-yellow-600 to-orange-600 rounded-lg cursor-pointer hover:from-yellow-700 hover:to-orange-700 transition-all duration-300"
+//               >
+//                 Download PDF
+//               </button>
+//             </div>
+//           )}
+
+
+//           {uploadStatus && (
+//             <div className="mt-6 text-xl font-semibold text-green-500 animate-fade-in">
+//               {uploadStatus}
+//             </div>
+//           )}
+//         </div>
+
+
+//         <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-gray-800 to-transparent z-0">
+//           <div className="grid grid-cols-6 gap-4 opacity-30">
+//             {[...Array(30)].map((_, i) => (
+//               <div
+//                 key={i}
+//                 className="w-4 h-4 bg-blue-500 rounded-full animate-pulse"
+//                 style={{ animationDelay: `${i * 0.1}s` }}
+//               ></div>
+//             ))}
+//           </div>
+//         </div>
+        
+//       </div>
+      
+//       <h2 className="text-center left-0 w-full  text-gray-600 pt-2">© 2025 AI Tech Solutions. All Rights Reserved.</h2>
+      
+//     </div>
+//   );
+// };
+
+// export default Home;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useState } from 'react';
+// import axios from 'axios';
+// import { AiOutlineLoading3Quarters, AiOutlineDelete } from 'react-icons/ai';
+// import { v4 as uuidv4 } from 'uuid';
+// import { jsPDF } from 'jspdf';
+
+
+
+
+// const Home = () => {
+
+
+//   const [previewFiles, setPreviewFiles] = useState([]);
+//   const [uploadStatus, setUploadStatus] = useState('');
+//   const [loading, setLoading] = useState(false);
+//   const [extractedTexts, setExtractedTexts] = useState({});
+//   const [generatedAnswers, setGeneratedAnswers] = useState({});
+
+
+//   const [purpose, setPurpose] = useState('');
+//   const [answerType, setAnswerType] = useState('');
+//   const [projectDetails, setProjectDetails] = useState({ paragraphs: 0, words: 0 });
+
+
+//   const handleFileChange = (event) => {
+//     const files = event.target.files;
+//     if (files && files.length > 0) {
+//       const newPreviewFiles = [];
+//       for (let i = 0; i < files.length; i++) {
+//         const file = files[i];
+//         newPreviewFiles.push({
+//           id: uuidv4(),
+//           name: file.name,
+//           url: URL.createObjectURL(file),
+//           uploaded: false,
+//         });
+//       }
+//       setPreviewFiles((prevFiles) => [...prevFiles, ...newPreviewFiles]);
+//     }
+//   };
+
+//   const handleUpload = async () => {
+//     setLoading(true);
+//     const formData = new FormData();
+//     const files = document.querySelector('input[type="file"]').files;
+
+//     for (let i = 0; i < files.length; i++) {
+//       formData.append('files', files[i]);
+//     }
+
+//     try {
+//       const response = await axios.post('http://localhost:5000/upload', formData, {
+//         headers: { 'Content-Type': 'multipart/form-data' },
+//       });
+//       setUploadStatus('Files uploaded successfully!');
+
+
+//       const updatedFiles = previewFiles.map((file) => ({ ...file, uploaded: true }));
+//       setPreviewFiles(updatedFiles);
+
+//       const texts = {};
+//       response.data.savedFiles.forEach((file) => {
+//         texts[file.originalName] = file.extractedText;
+//       });
+//       setExtractedTexts(texts);
+//     } catch (error) {
+//       console.error(error);
+//       setUploadStatus('Failed to upload files. Please try again.');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+
+//   const handleDeletePhoto = (id) => {
+//     const updatedFiles = previewFiles.filter((file) => file.id !== id);
+//     setPreviewFiles(updatedFiles);
+//   };
+
+
+//   const handlesubmit = async (fileName, text) => {
+//     const userQuestion = document.querySelector(`textarea[name="question-${fileName}"]`).value;
+
+//     if (!userQuestion.trim()) {
+//       alert('Please enter a question');
+//       return;
+//     }
+
+//     try {
+
+//       let prompt = `Purpose: ${purpose}\n\n`;
+//       if (purpose === 'education') {
+//         prompt += `Answer Type: ${answerType}\n\n`;
+//         if (answerType === 'project') {
+//           prompt += `Project Details: ${projectDetails.paragraphs} paragraphs, ${projectDetails.words} words\n\n`;
+//         } else if (answerType === 'long') {
+//           prompt += `Provide a detailed answer in 3-5 paragraphs with 100-150 words.\n\n`;
+//         } else if (answerType === 'short') {
+//           prompt += `Provide a concise answer in 2-3 paragraphs with 50-80 words.\n\n`;
+//         } else if (answerType === 'one-word') {
+//           prompt += `Provide a one-word answer or a brief response in 1-2 lines (10 words or less).\n\n`;
+//         }
+//       }
+//       prompt += `Given the following text: ${text}\n\nAnswer the following question: ${userQuestion}`;
+
+
+//       const response = await axios.post('http://localhost:5000/api/ask', {
+//         text,
+//         question: userQuestion,
+//         purpose,
+//         answerType,
+//         projectDetails,
+//       });
+
+
+//       setGeneratedAnswers((prevAnswers) => ({
+//         ...prevAnswers,
+//         [fileName]: response.data.answer,
+//       }));
+//     } catch (error) {
+//       console.error('Error submitting question:', error);
+//       alert('Failed to get answer from AI');
+//     }
+//   };
+
+//   const downloadPdf = () => {
+//     const doc = new jsPDF();
+
+//     let yOffset = 20;
+
+//     Object.entries(extractedTexts).forEach(([fileName, text], index) => {
+
+//       const question = document.querySelector(`textarea[name="question-${fileName}"]`).value;
+//       const answer = generatedAnswers[fileName];
+
+//       doc.setFontSize(16);
+//       doc.setFont('helvetica', 'bold');
+//       doc.text(`Question ${index + 1}: ${question}`, 10, yOffset);
+
+//       yOffset += 10;
+
+//       doc.setFontSize(12);
+//       doc.setFont('helvetica', 'normal');
+//       const splitAnswer = doc.splitTextToSize(answer, 180);
+//       doc.text(splitAnswer, 10, yOffset);
+
+//       yOffset += splitAnswer.length * 10 + 20;
+
+//       if (yOffset > 280) {
+//         doc.addPage();
+//         yOffset = 20;
+//       }
+//     });
+
+//     doc.save('Answer.pdf');
+//   };
+
+//   return (
+//     <div>
+//       <div className="min-h-screen bg-gray-900  flex flex-col items-center justify-center relative overflow-hidden pt-6">
+//         <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
+//           <div className="absolute -top-20 -left-20 w-96 h-96 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-20 animate-float"></div>
+//           <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-green-400 to-teal-500 rounded-full opacity-20 animate-float-reverse"></div>
+//         </div>
+
+//         <div className="relative z-10 text-center  pb-4 text-gray-500 w-full">
+//           <h1 className="text-6xl sm:text-8xl font-bold bg-clip-text bg-gradient-to-r animate-text-glow">
+//             AI-Powered Image Recognizer
+//           </h1>
+
+//           <p className="mt-6 text-xl sm:text-2xl text-gray-500 max-w-2xl mx-auto animate-fade-in">
+//             Harness the power of artificial intelligence to analyze and recognize images with unparalleled accuracy. Upload your photos or capture them using your camera.
+//           </p>
+
+//           <div className="mt-8">
+//             <h2 className="text-2xl font-semibold text-gray-300 mb-4">What is the purpose of this photo?</h2>
+//             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+//               <button
+//                 onClick={() => setPurpose('education')}
+//                 className={`px-4 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${purpose === 'education' ? 'bg-blue-700' : 'hover:from-blue-500 hover:to-purple-500 hover:scale-105 hover:shadow-xl'}`}
+//               >
+//                 Education
+//               </button>
+//               <button
+//                 onClick={() => setPurpose('finance')}
+//                 className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-green-600 to-teal-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${purpose === 'finance' ? 'bg-green-700' : 'hover:from-green-700 hover:to-teal-700 hover:scale-105 hover:shadow-xl'}`}
+//               >
+//                 Finance
+//               </button>
+//               <button
+//                 onClick={() => setPurpose('health')}
+//                 className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-pink-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${purpose === 'health' ? 'bg-red-700' : 'hover:from-red-700 hover:to-pink-700 hover:scale-105 hover:shadow-xl'}`}
+//               >
+//                 Health
+//               </button>
+//             </div>
+//           </div>
+
+//           {purpose === 'education' && (
+//             <div className="mt-8">
+//               <h2 className="text-2xl font-semibold text-gray-300 mb-4 ">What type of answer do you want?</h2>
+//               <div className="flex flex-col sm:flex-row gap-4 justify-center">
+//                 <button
+//                   onClick={() => setAnswerType('short')}
+//                   className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${answerType === 'short' ? 'bg-blue-700' : 'hover:from-blue-700 hover:to-purple-700 hover:scale-105 hover:shadow-xl'}`}
+//                 >
+//                   Short Answer
+//                 </button>
+//                 <button
+//                   onClick={() => setAnswerType('one-word')}
+//                   className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-green-600 to-teal-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${answerType === 'one-word' ? 'bg-green-700' : 'hover:from-green-700 hover:to-teal-700 hover:scale-105 hover:shadow-xl'}`}
+//                 >
+//                   One-Word Answer
+//                 </button>
+//                 <button
+//                   onClick={() => setAnswerType('long')}
+//                   className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-red-600 to-pink-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${answerType === 'long' ? 'bg-red-700' : 'hover:from-red-700 hover:to-pink-700 hover:scale-105 hover:shadow-xl'}`}
+//                 >
+//                   Long Answer
+//                 </button>
+//                 <button
+//                   onClick={() => setAnswerType('project')}
+//                   className={`px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-yellow-600 to-orange-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${answerType === 'project' ? 'bg-yellow-700' : 'hover:from-yellow-700 hover:to-orange-700 hover:scale-105 hover:shadow-xl'}`}
+//                 >
+//                   Project
+//                 </button>
+//               </div>
+//             </div>
+//           )}
+
+//           {answerType === 'project' && (
+//             <div className="mt-8">
+//               <h2 className="text-2xl font-bold text-gray-700 mb-4">Project Details</h2>
+//               <div className="flex flex-col sm:flex-row gap-4 justify-center inline-block">
+//                <div className=' p-2'>
+//                number of paragraph
+//                 <input
+//                   type="number"
+//                   placeholder="Number of Paragraphs"
+//                   className="p-2 rounded-lg text-white"
+//                   value={projectDetails.paragraphs}
+//                   onChange={(e) => setProjectDetails({ ...projectDetails, paragraphs: e.target.value })}
+//                 />
+//                </div>
+
+
+//                <div>
+//                number of words
+//                 <input
+//                   type="number"
+//                   placeholder="Number of Words"
+//                   className="p-2 rounded-lg text-white"
+//                   value={projectDetails.words}
+//                   onChange={(e) => setProjectDetails({ ...projectDetails, words: e.target.value })}
+//                 />
+//                </div>
+
+//               </div>
+//             </div>
+//           )}
+
+//           <div className="mt-12 animate-fade-in-up">
+//             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+//               <label className="inline-flex items-center px-4 py-4 text-lg font-semibold text-white bg-gradient-to-r from-gray-600  rounded-lg cursor-pointer hover:from-gray-400 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+//                 <span className="mr-3 text-2xl">📁</span> Upload Files
+//                 <input
+//                   type="file"
+//                   className="hidden"
+//                   id="upload-files"
+//                   multiple
+//                   onChange={handleFileChange}
+//                 />
+//               </label>
+//             </div>
+//           </div>
+
+//           {previewFiles.length > 0 && (
+//             <div className="mt-8 w-full max-w-6xl mx-auto animate-fade-in">
+//               <h2 className="text-2xl font-semibold text-gray-300 mb-4">Your Files:</h2>
+//               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+//                 {previewFiles.map((file) => (
+//                   <div
+//                     key={file.id}
+//                     className="relative aspect-square overflow-hidden rounded-lg shadow-lg"
+//                   >
+//                     <img
+//                       src={file.url}
+//                       alt={file.name}
+//                       className={`w-full h-full ${file.uploaded ? 'opacity-50' : ''}`}
+//                     />
+//                     <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-sm">
+//                       {file.name}
+//                     </div>
+//                     {file.uploaded && (
+//                       <button
+//                         onClick={() => handleDeletePhoto(file.id)}
+//                         className="absolute top-2 right-2 p-2 bg-red-600 rounded-full hover:bg-red-700 transition-all duration-300"
+//                       >
+//                         <AiOutlineDelete className="text-white" />
+//                       </button>
+//                     )}
+//                   </div>
+//                 ))}
+//               </div>
+
+//               <button
+//                 onClick={handleUpload}
+//                 disabled={loading || previewFiles.every((file) => file.uploaded)}
+//                 className={`mt-6 px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg cursor-pointer transition-all duration-300 transform shadow-lg ${loading || previewFiles.every((file) => file.uploaded)
+//                     ? 'opacity-50 cursor-not-allowed'
+//                     : 'hover:from-blue-700 hover:to-purple-700 hover:scale-105 hover:shadow-xl'
+//                   }`}
+//               >
+//                 {loading ? <AiOutlineLoading3Quarters className="animate-spin" /> : 'Upload'}
+//               </button>
+//             </div>
+//           )}
+
+//           {Object.keys(extractedTexts).length > 0 && (
+//             <div className="mt-8 w-full max-w-6xl mx-auto animate-fade-in">
+//               <h2 className="text-2xl font-semibold text-gray-300 mb-4">Extracted Texts:</h2>
+//               {Object.entries(extractedTexts).map(([fileName, text]) => (
+//                 <div key={fileName} className="mb-4">
+//                   <div className="max-w-lg mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
+//                     <div className="text-xl font-semibold text-gray-400 mb-4">{text}</div>
+//                     <textarea
+//                       className="w-full border text-white border-gray-600 pt-2 pl-2 rounded-lg"
+//                       name={`question-${fileName}`}
+//                       placeholder="Ask your questions"
+//                     />
+//                     <button
+//                       onClick={() => handlesubmit(fileName, text)}
+//                       className="border border-gray-400 bg-green-400 p-3 rounded-md mt-4 mb-2"
+//                     >
+//                       Submit
+//                     </button>
+//                     {generatedAnswers[fileName] && (
+//                       <div className=" bg-gray-300 p-4 rounded-md border text-black border-gray-500 mt-4">
+//                         {generatedAnswers[fileName]}
+//                       </div>
+//                     )}
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           )}
+
+//           {Object.keys(generatedAnswers).length > 0 && (
+//             <div className="mt-8">
+//               <button
+//                 onClick={downloadPdf}
+//                 className="px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-yellow-600 to-orange-600 rounded-lg cursor-pointer hover:from-yellow-700 hover:to-orange-700 transition-all duration-300"
+//               >
+//                 Download PDF
+//               </button>
+//             </div>
+//           )}
+
+
+//           {uploadStatus && (
+//             <div className="mt-6 text-xl font-semibold text-green-500 animate-fade-in">
+//               {uploadStatus}
+//             </div>
+//           )}
+//         </div>
+
+
+//         <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-gray-800 to-transparent z-0">
+//           <div className="grid grid-cols-6 gap-4 opacity-30">
+//             {[...Array(30)].map((_, i) => (
+//               <div
+//                 key={i}
+//                 className="w-4 h-4 bg-blue-500 rounded-full animate-pulse"
+//                 style={{ animationDelay: `${i * 0.1}s` }}
+//               ></div>
+//             ))}
+//           </div>
+//         </div>
+        
+//       </div>
+      
+//       <h2 className="text-center left-0 w-full  text-gray-600 pt-2">© 2025 AI Tech Solutions. All Rights Reserved.</h2>
+      
+//     </div>
+//   );
+// };
+
+// export default Home;
+

@@ -1,0 +1,1 @@
+cd "C:\Users\hp\Desktop\projects\new_image"
