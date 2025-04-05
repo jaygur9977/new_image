@@ -652,13 +652,11 @@ const Home = () => {
                 <label className="block text-gray-400 mb-2">Number of Paragraphs</label>
                 <input
                   type="number"
-                  min="1"
-                  max="10"
                   className="p-2 rounded-lg bg-gray-700 text-white w-full"
                   value={projectDetails.paragraphs}
                   onChange={(e) => setProjectDetails({
                     ...projectDetails, 
-                    paragraphs: Math.max(1, Math.min(10, parseInt(e.target.value) || 1)) 
+                    paragraphs: parseInt(e.target.value) 
                   })}
                 />
               </div>
@@ -666,13 +664,11 @@ const Home = () => {
                 <label className="block text-gray-400 mb-2">Number of Words</label>
                 <input
                   type="number"
-                  min="50"
-                  max="2000"
                   className="p-2 rounded-lg bg-gray-700 text-white w-full"
                   value={projectDetails.words}
                   onChange={(e) => setProjectDetails({ 
                     ...projectDetails, 
-                    words: Math.max(50, Math.min(2000, parseInt(e.target.value) || 100)) 
+                    words: parseInt(e.target.value) 
                   })}
                 />
               </div>
