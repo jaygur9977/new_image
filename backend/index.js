@@ -256,10 +256,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// AI Configuration
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Utility Functions
 async function extractTextFromImage(filePath) {
   try {
     const { data: { text } } = await Tesseract.recognize(filePath, 'eng');
