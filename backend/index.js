@@ -256,10 +256,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// AI Configuration
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Utility Functions
 async function extractTextFromImage(filePath) {
   try {
     const { data: { text } } = await Tesseract.recognize(filePath, 'eng');
@@ -277,20 +275,19 @@ async function generateAIAnswer(text, purpose, answerType, projectDetails) {
     
     if (purpose === 'education') {
       if (answerType === 'project') {
-        prompt += `Create a detailed and interactive  project report with ${projectDetails.paragraphs} paragraphs and approximately ${projectDetails.words} words based on the following content:\n\n${text} `;
+        prompt += `Create a detailed project report with ${projectDetails.paragraphs || 3} paragraphs `;
+        prompt += `and approximately ${projectDetails.words || 300} words.\n`;
+        prompt += `Format the response with clear paragraph breaks.\n\n`;
+        prompt += `Content to analyze:\n${text}`;
       } else if (answerType === 'long') {
-        prompt += `Provide a detailed explanation (3-5 paragraphs) of the following educational content:\n\n${text}`;
+        prompt += `Provide a detailed explanation (3-5 paragraphs) with each paragraph clearly separated:\n\n${text}`;
       } else if (answerType === 'short') {
-        prompt += `Provide a concise summary (2-3 paragraph) of the following educational content basically ngive a sort discreption of this question about 2-3 paragraph:\n\n${text}`;
+        prompt += `Provide a concise summary (2-3 paragraphs) with clear spacing between paragraphs:\n\n${text}`;
       } else if (answerType === 'one-word') {
-        textPrompt = `Summarize this in 2-3 lines maximum: \n\n${text}`;
+        prompt += `Summarize this in 2-3 lines maximum:\n\n${text}`;
       }
-    } else if (purpose === 'finance') {
-      prompt += `Analyze this financial document and provide key insights:\n\n${text}`;
-    } else if (purpose === 'health') {
-      prompt += `Explain this medical information in clear terms:\n\n${text}`;
     } else {
-      prompt += `Summarize the key points from this document:\n\n${text}`;
+      prompt += `Analyze this content and provide key points with proper paragraph formatting:\n\n${text}`;
     }
 
     const result = await model.generateContent(prompt);
@@ -302,7 +299,6 @@ async function generateAIAnswer(text, purpose, answerType, projectDetails) {
   }
 }
 
-// API Endpoints
 app.get('/api/get-user/:uid', async (req, res) => {
   try {
     const user = await User.findOne({ uid: req.params.uid });
