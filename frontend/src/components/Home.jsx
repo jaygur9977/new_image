@@ -541,56 +541,34 @@ const Home = () => {
 
   const downloadPdf = () => {
     const doc = new jsPDF();
-    let yOffset = 20; // Initial Y position
-    const pageHeight = doc.internal.pageSize.height - 20; // Page height with bottom margin
-    const lineHeight = 7; // Standard line height
-    const questionSpacing = 15; // Base spacing between questions
-  
+    let yOffset = 20;
+
     Object.entries(extractedTexts).forEach(([fileName, text], index) => {
       const question = document.querySelector(`textarea[name="question-${fileName}"]`)?.value || 
                       "Automatic analysis based on document content";
-      const answer = generatedAnswers[fileName] || '';
-  
-      // Calculate required space for this question/answer pair
+      const answer = generatedAnswers[fileName];
+
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
-      const splitQuestion = doc.splitTextToSize(`Document ${index + 1}: ${fileName}\nQuestion: ${question}`, 180);
-      const questionHeight = splitQuestion.length * lineHeight;
+      doc.text(`Document ${index + 1}: ${fileName}`, 10, yOffset);
+      yOffset += 10;
       
+      doc.setFontSize(14);
+      doc.text(`Analysis: ${question}`, 10, yOffset);
+      yOffset += 10;
+
       doc.setFontSize(12);
       doc.setFont('helvetica', 'normal');
       const splitAnswer = doc.splitTextToSize(answer, 180);
-      const answerHeight = splitAnswer.length * lineHeight;
-      const totalContentHeight = questionHeight + answerHeight + questionSpacing;
-      if (yOffset + totalContentHeight > pageHeight) {
+      doc.text(splitAnswer, 10, yOffset);
+      yOffset += splitAnswer.length * 7 + 15;
+
+      if (yOffset > 280) {
         doc.addPage();
         yOffset = 20;
       }
-  
-      doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
-      doc.text(splitQuestion, 10, yOffset);
-      yOffset += questionHeight + 5; 
-  
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal');
-      
-      for (let i = 0; i < splitAnswer.length; i++) {
-        if (yOffset > pageHeight - lineHeight) {
-          doc.addPage();
-          yOffset = 20;
-        }
-        doc.text(splitAnswer[i], 10, yOffset);
-        yOffset += lineHeight;
-      }
-  
-      const dynamicSpacing = Math.min(
-        Math.max(questionSpacing, 30 - (splitAnswer.length / 2)), 
-        40 
-      );
-      yOffset += dynamicSpacing;
     });
-  
+
     doc.save('Document_Analysis.pdf');
   };
 
@@ -674,11 +652,12 @@ const Home = () => {
                 <label className="block text-gray-400 mb-2">Number of Paragraphs</label>
                 <input
                   type="number"
+                
                   className="p-2 rounded-lg bg-gray-700 text-white w-full"
                   value={projectDetails.paragraphs}
                   onChange={(e) => setProjectDetails({
                     ...projectDetails, 
-                    paragraphs: Math.max(1, parseInt(e.target.value) || 1)
+                    paragraphs: parseInt(e.target.value) 
                   })}
                 />
               </div>
@@ -686,13 +665,11 @@ const Home = () => {
                 <label className="block text-gray-400 mb-2">Number of Words</label>
                 <input
                   type="number"
-                    min="1"
                   className="p-2 rounded-lg bg-gray-700 text-white w-full"
                   value={projectDetails.words}
                   onChange={(e) => setProjectDetails({ 
                     ...projectDetails, 
-                    words: Math.max(1, parseInt(e.target.value) || 100)
-                    
+                    words:  parseInt(e.target.value) 
                   })}
                 />
               </div>
